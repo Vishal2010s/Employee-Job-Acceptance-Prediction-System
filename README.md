@@ -223,23 +223,7 @@ streamlit run dashboard/Dashboard.py
 
 ---
 
-# 📷 Project Screenshots
 
-Screenshots of the dashboard and visualizations will be added in future updates.
-
----
-
-# 🔮 Future Enhancements
-
-* Hyperparameter tuning
-* Cross-validation
-* Feature importance visualization
-* SHAP Explainability
-* Docker deployment
-* Cloud deployment
-* CI/CD integration
-
----
 
 # 👨‍💻 Author
 
