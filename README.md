@@ -121,7 +121,7 @@ An interactive Streamlit dashboard was developed to:
 
 | KPI View 
 |----------|
-![alt text](image.png) |
+![KPI Dashboard](images/KPI_dashboard.png) |
 
 ________________________________________
 | Drill-down Analysis |
