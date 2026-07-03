@@ -119,10 +119,18 @@ An interactive Streamlit dashboard was developed to:
 * Display model outputs.
 * Provide an intuitive interface for users.
 
-| KPI View | Drill-down Analysis |
-|----------|---------------------|
-![alt text](image.png) | ![alt text](image-1.png)|
+| KPI View 
+|----------|
+![alt text](image.png) |
 
+________________________________________
+| Drill-down Analysis |
+|----------|
+![alt text](image-1.png)
+![alt text](image-2.png)
+![alt text](image-3.png)
+![alt text](image-4.png)
+![alt text](image-5.png)
 
 ---
 
