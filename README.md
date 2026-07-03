@@ -121,16 +121,20 @@ An interactive Streamlit dashboard was developed to:
 
 | KPI View 
 |----------|
-![KPI Dashboard](images/KPI_dashboard.png) |
+![KPI dashboard](images/KPI_dashboard.png) |
 
 ________________________________________
 | Drill-down Analysis |
 |----------|
-![Drill Down](drilldown_1.png)
-![alt text](image-2.png)
-![alt text](image-3.png)
-![alt text](image-4.png)
-![alt text](image-5.png)
+![Drilldown 1](images/drilldown_1.png)
+
+![Drilldown 2](images/drilldown_2.png)
+
+![Drilldown 3](images/drilldown_3.png)
+
+![Drilldown 4](images/drilldown_4.png)
+
+![Drilldown 5](images/drilldown_5.png)
 
 ---
 
