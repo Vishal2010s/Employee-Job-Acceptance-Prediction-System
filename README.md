@@ -1,131 +1,192 @@
 # 🎯 Employee Job Acceptance Prediction System
 
-> End-to-end **predictive analytics platform** for talent placement — from raw HR data to actionable business insights, all in one repo.
+> End-to-end machine learning and Streamlit analytics project for candidate placement analysis, model evaluation, and new-candidate placement prediction.
 
 ## 📌 Project Overview
 
-This project is an end-to-end Machine Learning solution developed to predict employee job placement based on candidate attributes. The project demonstrates the complete Data Science lifecycle, from data preprocessing and exploratory data analysis (EDA) to model building, evaluation, SQL integration, and deployment using an interactive Streamlit dashboard.
+This project analyzes candidate academic, skill, interview, experience, and job-related attributes to understand placement outcomes and predict whether a candidate is likely to be placed.
 
-The objective is to help organizations identify suitable candidates for placement by leveraging machine learning algorithms and data-driven insights.
+The project covers the main Data Science workflow:
 
----
+**Raw Data → Cleaning & Preprocessing → EDA → Feature Engineering → SQL Integration → Machine Learning → Model Evaluation → Streamlit Dashboard → Candidate Prediction**
 
-# 🎯 Business Problem
-
-Recruitment and placement teams deal with large volumes of candidate data related to academic performance, skills, experience, interview outcomes, and job market conditions.
-However, not all candidates who are eligible or receive offers end up accepting them.
-
-The goal of this project is to analyze candidate placement data and build a Job Acceptance Prediction System to:
-
-●	Predict whether a candidate will accept or reject a job offer
-
-●	Identify key factors influencing job acceptance decisions
-
-●	Handle real-world data challenges such as missing values and noisy data
-
-●	Provide actionable insights to improve recruitment and placement strategies
-
-## 🧠 What This Project Does
-
-Helps **HR teams and recruitment agencies** predict whether a candidate will get placed, identify the **real drivers of placement success**, and present findings through an **interactive analytics dashboard**.
-
-| Layer | Tech | What it does |
-|------|------|--------------|
-| **Data Engineering** | pandas · MySQL | Cleans 51.5K rows of HR data, handles missing values, dedupes, ships to SQL |
-| **Statistical EDA** | Plotly · seaborn | Finds which features actually move the needle on placement |
-| **Feature Engineering** | pandas · numpy | Builds 5 domain-specific features (experience bands, employability score, etc.) |
-| **ML Modeling** | scikit-learn · XGBoost | Trains 6 models, picks the best by ROC-AUC |
-| **Interactive Dashboard** | Streamlit | Surfaces the insights with filters, KPIs, and drill-down charts |
+The final dashboard provides KPI monitoring, drill-down analysis, interactive filters, and a prediction form for evaluating a new candidate.
 
 ---
 
-# 📂 Dataset
+## 🎯 Business Objective
 
-The dataset contains candidate demographic, educational, professional, and behavioral information.
+Recruitment and placement teams handle large volumes of candidate data, but candidate suitability and final placement depend on multiple factors such as academic performance, technical ability, skills match, interview performance, work experience, salary expectations, company tier, and job-role fit.
 
-Typical features include:
+This project is designed to:
 
-* Education
-* Experience
-* Skills
-* Certifications
-* Salary Expectations
-* Relocation Willingness
-* Career Switch Willingness
-* Layoff History
-* Employment Status
-
-Target Variable:
-
-* Placement Status
-
-## 📊 Results Snapshot
-
-Trained on **50,000 records** (after cleaning), predicting binary placement outcome:
-
-🤖 Machine Learning Models 
-
-| Model | Accuracy | Precision | Recall | F1 | **ROC-AUC** |
-|-------|---------:|----------:|-------:|---:|------------:|
-| XGBoost | 0.88 | 0.86 | 0.91 | 0.88 | **0.94** ⭐ |
-| Random Forest | 0.87 | 0.85 | 0.90 | 0.87 | 0.93 |
-| Gradient Boosting | 0.86 | 0.84 | 0.89 | 0.86 | 0.92 |
-| Logistic Regression | 0.81 | 0.79 | 0.85 | 0.82 | 0.88 |
-| Decision Tree | 0.79 | 0.77 | 0.83 | 0.80 | 0.84 |
-| KNN | 0.76 | 0.74 | 0.81 | 0.77 | 0.82 |
-| Naive Bayes | 0.73 | 0.72 | 0.78 | 0.75 | 0.79 |
----
-
-## 🔥 Key Insights Discovered
-
-These are the **business-level findings** that came out of the EDA — the kind of insights a hiring manager or HR director would pay for:
-
-1. **Skills match > academics** — candidates with 75%+ skill match are **3.1× more likely** to be placed than those below 45%.
-2. **Certifications matter** — candidates with 2+ certifications have a **+18 percentage point** boost in acceptance rate.
-3. **Interview score is the strongest single predictor** — candidates scoring 75+ have a **~92% placement rate** vs ~38% for those below 40.
-4. **Company tier heavily influences acceptance** — Tier 1 acceptance rate runs ~15 points higher than Tier 3.
-5. **Experience has a sweet spot** — junior (1–3 yrs) candidates convert best; senior candidates face **CTC negotiation dropouts**.
-
-## 🎯 Use Cases
-
-- **HR Analysts** — identify which candidate segments to focus sourcing on.
-- **Recruitment Agencies** — forecast placement probability to prioritize efforts.
-- **Career Coaches** — show candidates *concretely* what moves placement outcomes.
-- **Data Scientists** — fork the repo as a template for end-to-end ML pipelines.
+- Analyze factors associated with candidate placement.
+- Compare placement outcomes across candidate segments.
+- Measure recruitment KPIs such as placement, acceptance, dropout, and high-risk candidate rates.
+- Train and compare multiple classification models.
+- Select the best-performing model using **ROC-AUC**.
+- Predict the placement outcome and probability for a new candidate through Streamlit.
 
 ---
 
-## 🛠️ Tech Stack
-### Programming
+## 🧠 Project Components
 
-`phython 3` 
-
-### Libraries
-
-`pandas` · `numpy` · `scikit-learn` · `XGBoost` · `Plotly` · `Streamlit` · `seaborn` ·`PyMySQL` . `SQLAlchemy` · `joblib`
-
-### Database
-
-`MySQL` 
+| Component | Technology | Purpose |
+|---|---|---|
+| Data Cleaning & Preprocessing | Python, pandas, NumPy | Standardizes labels, removes duplicates, handles missing values, and caps outliers |
+| Exploratory Data Analysis | pandas, Plotly, seaborn, matplotlib | Examines academic, skills, experience, interview, company-tier, and employability patterns |
+| Feature Engineering | pandas, NumPy | Creates derived placement-related features and candidate bands |
+| SQL Integration | SQLAlchemy, PyMySQL, MySQL | Uploads the processed dataset into the `project` database |
+| Machine Learning | scikit-learn, XGBoost | Trains and compares six classification algorithms |
+| Dashboard | Streamlit, Plotly | Displays KPIs, analysis outputs, filters, and new-candidate prediction |
 
 ---
 
-## 📊 Dashboard Preview
+## 📂 Dataset and Processing
 
-An interactive Streamlit dashboard was developed to:
+The master Python program begins with the raw HR placement dataset and performs the following major operations:
 
-* Predict employee placement.
-* Visualize important insights.
-* Display model outputs.
-* Provide an intuitive interface for users.
+1. Loads the candidate dataset.
+2. Standardizes categorical labels using title-case and whitespace stripping.
+3. Detects and removes duplicate rows.
+4. Handles missing values using mean, median, or mode depending on the feature.
+5. Detects numerical outliers using the **IQR method** and caps values to the calculated bounds.
+6. Performs EDA for interview performance, skills match, company tier, experience, competition level, and correlations.
+7. Creates engineered features.
+8. Saves the processed dataset as `Job_accept_Final_analysis.csv`.
+9. Uploads the processed data to MySQL.
+10. Trains and evaluates classification models.
 
-| KPI View 
-|----------|
-![KPI dashboard](images/KPI_dashboard.png) |
+### Engineered Features
 
-________________________________________
-| Drill-down Analysis |
-|----------|
+The pipeline creates the following placement-related features:
+
+- `placement_rate`
+- `avg_interview_score`
+- `experience_category`
+- `academic_band`
+- `skills_match_level`
+- `interview_performance`
+- `placement_prob_score`
+
+The rule-based `placement_prob_score` combines technical score, skills match, average interview score, job-role match, and company tier. The machine-learning target remains the binary `status` field (`Placed` / `Not Placed`).
+
+---
+
+## 🤖 Machine Learning
+
+Six classification models are trained using an 80/20 train-test split with `random_state=42` and stratification on the target:
+
+- Logistic Regression
+- Decision Tree Classifier
+- Random Forest Classifier
+- XGBoost Classifier
+- K-Nearest Neighbors
+- Gaussian Naive Bayes
+
+For every model, the master script calculates:
+
+- Accuracy
+- Precision
+- Recall
+- F1 Score
+- ROC-AUC
+- Classification Report
+
+The model with the **highest ROC-AUC** is selected as the best model.
+
+### Model Output Shown in the Project Output
+
+In the dashboard run captured in `output.docx`, **XGBoost** was selected as the current prediction model with a **ROC-AUC of 0.9639**.
+
+> The exact model metrics are calculated during execution from the current processed dataset. They are not hard-coded in the README.
+
+---
+
+# 📊 Streamlit Dashboard
+
+The dashboard is organized into **three main tabs**:
+
+## 1. 📊 KPIs
+
+The KPI tab summarizes the currently filtered candidate population.
+
+### KPI Cards
+
+- Total Candidates
+- Placement Rate
+- Acceptance Rate
+- Dropout Rate
+- Average Interview Score
+- Average Skills Match
+- High-Risk Candidate Percentage
+
+### Overall Output Snapshot
+
+The overall dashboard output shown in `output.docx` for **Male + Female** and **Fresher + Junior + Senior** candidates is:
+
+| KPI | Output |
+|---|---:|
+| Total Candidates | **50,000** |
+| Placement Rate | **30.26%** |
+| Acceptance Rate | **34.65%** |
+| Dropout Rate | **65.35%** |
+| Average Interview Score | **66.04** |
+| Average Skills Match | **73.94%** |
+| High-Risk Candidates | **0.01%** |
+
+The KPI tab also contains:
+
+- Placement Status donut chart
+- Placement Rate by Company Tier bar chart
+- Filtered data preview
+
+![KPI Dashboard](images/KPI_dashboard.png)
+
+### Interactive Filters
+
+The sidebar supports filtering by:
+
+- **Gender**
+- **Experience Category**
+
+This allows KPI comparison across Male/Female and Fresher/Junior/Senior candidate groups.
+
+---
+
+## 2. 🔍 Analysis
+
+The Analysis tab provides seven drill-down views selected from the sidebar.
+
+### Candidate Performance Analysis
+
+1. **Academic Scores vs Placement Outcome**  
+   Compares SSC, HSC, and degree scores for placed and not-placed candidates and summarizes placement by academic band.
+
+2. **Skills Match vs Interview Performance**  
+   Groups skills-match percentage into performance levels and compares the corresponding placement rate.
+
+3. **Certification Impact on Job Acceptance**  
+   Compares candidates with and without certifications and summarizes candidate count, placements, interview score, and job-acceptance rate.
+
+### Placement & Acceptance Analysis
+
+4. **Acceptance Rate by Company Tier**  
+   Compares candidate volume, placements, expected CTC, and acceptance percentage across company tiers.
+
+5. **Experience vs Placement Success**  
+   Compares Fresher, Junior, and Senior groups using candidate count, placed count, interview score, expected CTC, and placement percentage.
+
+### Interview & Evaluation Analysis
+
+6. **Interview Score vs Placement Probability**  
+   Calculates an average interview score from technical, aptitude, and communication scores and evaluates placement by score band.
+
+7. **Employability Test Score Analysis**  
+   Compares technical, aptitude, and communication scores and evaluates placement across employability bands.
+
+### Dashboard Drill-down Screens
+
 ![Drilldown 1](images/drilldown_1.png)
 
 ![Drilldown 2](images/drilldown_2.png)
@@ -136,103 +197,251 @@ ________________________________________
 
 ![Drilldown 5](images/drilldown_5.png)
 
+![Drilldown 6](images/drilldown_6.png)
+
+![Drilldown 7](images/drilldown_7.png)
+
 ---
 
-# 📊 Project Workflow
+## 3. 🎯 Predict Candidate
 
-```
-Dataset
-   │
-   ▼
-Data Cleaning
-   │
-   ▼
-Missing Value Treatment
-   │
-   ▼
-Outlier Detection
-   │
-   ▼
-Exploratory Data Analysis
-   │
-   ▼
-Feature Engineering
-   │
-   ▼
-SQL Database Integration
-   │
-   ▼
-Machine Learning Models
-   │
-   ▼
-Model Evaluation
-   │
-   ▼
-Best Model Selection
-   │
-   ▼
-Streamlit Dashboard
-```
+The prediction tab allows a user to enter a new candidate's details and receive a placement prediction.
+
+The dashboard retrains the same six model types on the processed dataset, compares their ROC-AUC values, and uses the best-performing model for prediction.
+
+### Candidate Inputs
+
+The prediction form collects inputs across four sections:
+
+- **Personal & Academic Details** — age, gender, SSC %, HSC %, degree %, specialization
+- **Assessment & Skills** — technical, aptitude and communication scores, skills-match %, certifications, internship experience
+- **Experience** — years of experience, career-switch willingness, relevant experience, previous/expected CTC, employment gap
+- **Job & Company Details** — company tier, job-role match, competition level, bond requirement, notice period, layoff history, relocation willingness
+
+### Prediction Output
+
+After selecting **Predict Placement**, the dashboard displays:
+
+- Predicted outcome: **PLACED** or **NOT PLACED**
+- Placement probability percentage
+- Probability progress bar
+- High / moderate / low probability interpretation
+
+In the sample output captured in `output.docx`, the candidate was predicted as **PLACED** with a **92.33% placement probability**.
+
+---
+
+# 📊 KPI Calculation Logic
+
+The dashboard calculates its main recruitment KPIs as follows:
+
+- **Placement Rate** = Placed Candidates / Total Candidates × 100
+- **Offered Candidates** = Candidates with `placement_prob_score >= 0.60`
+- **Acceptance Rate** = Placed Candidates among Offered Candidates / Offered Candidates × 100
+- **Dropout Rate** = Offered but Not Placed / Offered Candidates × 100
+- **High-Risk Candidates** = Candidates with `placement_prob_score < 0.40`
+
+These metrics are recalculated whenever the dashboard filters change.
+
+---
 
 # 📁 Repository Structure
 
-```
-Employee-Placement-Prediction-ML/
+```text
+Employee-Job-Acceptance-Prediction-System/
 │
-├── README.md
-├── requirements.txt
-├── LICENSE
-├── .gitignore
+├── dashboard/
+│   └── Dashboard.py
 │
 ├── data/
-├── src/
-├── dashboard/
-├── models/
-├── outputs/
+│   ├── .gitkeep
+│   └── Job_accept_Final_analysis.csv
+│
 ├── images/
-└── docs/
+│   ├── .gitkeep
+│   ├── KPI_dashboard.png
+│   ├── drilldown_1.png
+│   ├── drilldown_2.png
+│   ├── drilldown_3.png
+│   ├── drilldown_4.png
+│   └── drilldown_5.png
+|   └── drilldown_6.png
+|   └── drilldown_7.png
+│
+├── models/
+│   └── .gitkeep
+│
+├── outputs/
+│   └── .gitkeep
+│
+├── src/
+│   └── Employee_Placement_Master.py
+│
+└── README.md
 ```
 
 ---
 
-# ▶️ Installation
+# ▶️ Python Execution
 
-Clone the repository
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Vishal2010s/Employee-Job-Acceptance-Prediction-System.git
+cd Employee-Job-Acceptance-Prediction-System
 ```
 
-Navigate to the project folder
+## 2. Create and Activate a Virtual Environment
+
+### Windows
 
 ```bash
-cd Employee-Placement-Prediction-ML
+python -m venv venv
+venv\Scripts\activate
 ```
 
-Install dependencies
+### macOS / Linux
 
 ```bash
-pip install -r requirements.txt
+python -m venv venv
+source venv/bin/activate
 ```
 
-Run the Streamlit dashboard
+## 3. Install Required Packages
+
+Install the Python libraries imported by the project scripts, including:
 
 ```bash
-streamlit run dashboard/Dashboard.py
+pip install pandas numpy plotly streamlit scikit-learn xgboost sqlalchemy pymysql seaborn matplotlib joblib pdfkit
+```
+
+> `Employee_Placement_Master.py` also imports `data_profiling.ProfileReport`; ensure the corresponding package/module used in your environment is installed before executing the full master script.
+
+## 4. Prepare the Data
+
+The master script expects the raw file:
+
+```text
+HR_Job_Placement_Dataset.csv
+```
+
+The Streamlit dashboard uses the processed file:
+
+```text
+Job_accept_Final_analysis.csv
+```
+
+The current repository already contains the processed CSV under `data/`.
+
+## 5. Run the Master Python Pipeline
+
+Because the current Python files use relative CSV paths, the simplest execution approach is to run from the `data` directory when regenerating the processed file:
+
+```bash
+cd data
+python ../src/Employee_Placement_Master.py
+```
+
+The script performs cleaning, EDA, feature engineering, CSV generation, MySQL upload, model training, evaluation, and best-model selection.
+
+### MySQL Requirement
+
+Before running the complete master pipeline, configure the MySQL connection in `Employee_Placement_Master.py` for your local environment and ensure the target database is available.
+
+## 6. Run the Streamlit Dashboard
+
+From the same `data` directory:
+
+```bash
+streamlit run ../dashboard/Dashboard.py
+```
+
+Then open the local Streamlit URL displayed in the terminal.
+
+> This execution location is important with the current code because `Dashboard.py` reads `Job_accept_Final_analysis.csv` using a relative filename.
+
+---
+
+# 🔄 End-to-End Workflow
+
+```text
+HR_Job_Placement_Dataset.csv
+          │
+          ▼
+Data Understanding
+          │
+          ▼
+Categorical Label Standardization
+          │
+          ▼
+Duplicate Removal
+          │
+          ▼
+Missing Value Imputation
+          │
+          ▼
+Outlier Detection & Capping
+          │
+          ▼
+Exploratory Data Analysis
+          │
+          ▼
+Feature Engineering
+          │
+          ▼
+Job_accept_Final_analysis.csv
+          │
+          ├──────────────► MySQL Database
+          │
+          ▼
+ML Training: LR / DT / RF / XGB / KNN / NB
+          │
+          ▼
+Model Evaluation
+          │
+          ▼
+Best Model by ROC-AUC
+          │
+          ▼
+Streamlit Dashboard
+          │
+          ├── 📊 KPIs
+          ├── 🔍 Analysis
+          └── 🎯 Predict Candidate
 ```
 
 ---
 
+## 🎯 Use Cases
 
-
-# 👨‍💻 Author
-
-**Vishal S**
-
-Aspiring Data Scientist |  Machine Learning Enthusiast | Credit Risk Specialist | Underwriter
+- Recruitment KPI monitoring
+- Candidate-segment comparison
+- Placement-driver analysis
+- Job-acceptance analysis
+- Candidate placement-probability estimation
+- Demonstration of an end-to-end Data Science and Machine Learning workflow
 
 ---
 
-# ⭐ If you found this project useful
+## 🛠️ Tech Stack
 
-Please consider giving this repository a ⭐.
+**Programming:** Python 3  
+**Data Analysis:** pandas, NumPy  
+**Visualization:** Plotly, seaborn, matplotlib  
+**Machine Learning:** scikit-learn, XGBoost  
+**Database:** MySQL, SQLAlchemy, PyMySQL  
+**Dashboard:** Streamlit  
+**Model Utilities:** joblib
+
+---
+
+## 👨‍💻 Author
+
+**Vishal S**  
+Aspiring Data Scientist | Machine Learning Enthusiast | Credit Risk Specialist | Underwriter
+
+---
+
+## ⭐ Project Note
+
+This repository demonstrates the complete transition from candidate-level raw data to cleaned analytical data, business KPIs, machine-learning model comparison, and an interactive prediction dashboard.
