@@ -197,10 +197,6 @@ The Analysis tab provides seven drill-down views selected from the sidebar.
 
 ![Drilldown 5](images/drilldown_5.png)
 
-![Drilldown 6](images/drilldown_6.png)
-
-![Drilldown 7](images/drilldown_7.png)
-
 ---
 
 ## 3. 🎯 Predict Candidate
@@ -226,6 +222,10 @@ After selecting **Predict Placement**, the dashboard displays:
 - Placement probability percentage
 - Probability progress bar
 - High / moderate / low probability interpretation
+
+![Drilldown 6](images/drilldown_6.png)
+
+![Drilldown 7](images/drilldown_7.png)
 
 In the sample output captured in `output.docx`, the candidate was predicted as **PLACED** with a **92.33% placement probability**.
 
