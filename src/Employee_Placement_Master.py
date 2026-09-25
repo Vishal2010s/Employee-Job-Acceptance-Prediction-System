@@ -5,12 +5,10 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
-# from ydata_profiling import ProfileReport
 from data_profiling import ProfileReport
 import pdfkit
 import os
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -231,9 +229,8 @@ for i in df1.columns:
 df1['placement_rate'] = (df1['status'] == 'Placed').astype(int)
 
 # Interview score vs job acceptance
-
-avg_interview_score = (df1['technical_score']+df1['aptitude_score']+df1['communication_score']) / 3
-score_levels = pd.cut(avg_interview_score,bins=5,labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'])
+df1['avg_interview_score'] = (df1['technical_score']+ df1['aptitude_score']+ df1['communication_score']) / 3
+score_levels = pd.cut(df1['avg_interview_score'],bins=5,labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'])
 placement_rate = df1.groupby(score_levels)['placement_rate'].mean() * 100
 print("Placement Rate by Interview Score Group:")
 print(placement_rate)
@@ -248,11 +245,11 @@ print(placement_rate)
 
 
 plot_data = placement_rate.reset_index()
-plot_data.rename(columns={'index':'score_levels'},inplace=True)
-fig = px.bar(plot_data,x='score_levels',y='placement_rate',title='Placement Rate by Interview Score Level',text='placement_rate')
+plot_data.rename(columns={'index':'avg_interview_score'},inplace=True)
+fig = px.bar(plot_data,x='avg_interview_score',y='placement_rate',title='Placement Rate by Interview Score Level',text='placement_rate')
 fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 fig.update_layout(width=700, height=700)
-fig.show()
+# fig.show()
 
 # 2. Skills match vs placement
 skills_match_level = pd.cut(df1['skills_match_percentage'],bins=5,labels=['Very Low', 'Low', 'Medium', 'High', 'Very High'])
@@ -272,7 +269,7 @@ fig = px.bar(
 )
 fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 fig.update_layout(title_x=0.5, height=700, width=700)
-fig.show()
+# fig.show()
 
 
 # 3. Company tier vs acceptance rate
@@ -290,7 +287,7 @@ fig = px.bar(
 )
 fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 fig.update_layout(title_x=0.5, height=700, width=700)
-fig.show()
+# fig.show()
 
 # 4. Experience vs placement probability
 Experience_level = df1.groupby(['years_of_experience','avg_interview_score', 'expected_ctc_lpa'])['placement_rate'].mean()*100
@@ -307,7 +304,7 @@ fig = px.bar(
 )
 fig.update_traces(texttemplate='%{text:.1f}%', textposition='outside')
 fig.update_layout(title_x=0.5, height=700, width=700)
-fig.show()
+# fig.show()
 
 # 5.Competition level vs job acceptance
 
@@ -325,27 +322,27 @@ fig = px.bar(
 )
 fig.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
 fig.update_layout(title_x=0.5, height=700, width=700)
-fig.show()
+# fig.show()
 
 #6. Correlation of Numerical Columns 
 # Encoding
-df_corr=df1.copy()
-for i in df_corr:
-  if df_corr[i].dtype in ["category", "object"]:
-    le = LabelEncoder()
-    df_corr[i] = le.fit_transform(df1[i])
+# df_corr=df1.copy()
+# for i in df_corr:
+#   if df_corr[i].dtype in ["category", "object"]:
+#     le = LabelEncoder()
+#     df_corr[i] = le.fit_transform(df1[i])
 
-corr=df_corr.corr()
-fig = px.imshow(corr,text_auto='.2f',width=1200, height=1200)
-fig.show()
+# corr=df_corr.corr()
+# fig = px.imshow(corr,text_auto='.2f',width=1200, height=1200)
+# fig.show()
 
 # -----------------------------------------------------------------------------------------------------
 ## Step 5: Feature Engineering
-●	Experience category (Fresher / Junior / Senior)
-●	Academic performance bands
-●	Skills match level (Low / Medium / High)
-●	Interview performance category
-●	Placement probability score 
+# ●	Experience category (Fresher / Junior / Senior)
+# ●	Academic performance bands
+# ●	Skills match level (Low / Medium / High)
+# ●	Interview performance category
+# ●	Placement probability score 
 # -----------------------------------------------------------------------------------------------------
 
 # ============================================================
@@ -377,26 +374,30 @@ df1['placement_prob_score'] = (0.40*(df1['technical_score']/100) +
 
 print(f"✓ Categorical + interaction features created")
 
+#6. Complete Correlation of Numerical Columns 
+# Encoding
+df_corr=df1.copy()
+for i in df_corr:
+  if df_corr[i].dtype in ["category", "object"]:
+    le = LabelEncoder()
+    df_corr[i] = le.fit_transform(df1[i])
+
+corr=df_corr.corr()
+fig = px.imshow(corr,text_auto='.2f',width=1200, height=1200)
+fig.show()
+
 df1.to_csv("Job_accept_Final_analysis.csv",index=False)
 
-from sqlalchemy import create_engine
-import pymysql
+
 
 # --- Create database ---
-conn = pymysql.connect(host='127.0.0.1', port=3306, user='root', password=<your_password>)
-cursor = conn.cursor()
-cursor.execute("DROP DATABASE IF EXISTS Project")
-cursor.execute("CREATE DATABASE project")
-
 
 engine = create_engine('mysql+pymysql://root:Mwin%402028@127.0.0.1:3306/project')
 df2 = pd.read_csv("Job_accept_Final_analysis.csv")
-df2.to_sql("Job", engine, if_exists='replace', index=False)
+df2.to_sql("job", engine, if_exists='replace', index=False)
 print(f"Uploaded {len(df2)} rows to databse project")
-cursor.close()
-conn.close()
 
- ============================================================
+#  ============================================================
 ## Machine Learning Modeling
 # 1."Logistic Regression"
 # 2."Decision Tree"
@@ -404,11 +405,11 @@ conn.close()
 # 4."XGBoost": XGBClassifier
 # 5."KNN": KNeighborsClassifier
 #6.Naive Bayes
-============================================================
+# ============================================================
 
 #Filtering coumns for x and y
 drop_columns = ["placement_rate", "avg_interview_score", "placement_prob_score",
-         "score_levels", "skills_match_level", "experience_category",
+         "skills_match_level", "experience_category",
          "academic_band", "interview_performance"]
 
 y = (df2["status"] == "Placed").astype(int)
