@@ -4,8 +4,6 @@ plotly
 seaborn
 matplotlib
 scikit-learn
-data-profiling
-pdfkit
 xgboost
 joblib
 PyMySQL
