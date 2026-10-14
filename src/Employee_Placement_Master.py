@@ -1,5 +1,4 @@
 import pandas as pd
-from sqlalchemy import create_engine
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -17,8 +16,6 @@ from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 from sklearn.naive_bayes import GaussianNB
 import joblib
-from pathlib import Path
-
 print("\N{white heavy check mark}","All libraries loaded")
 
 print("Processing started")
@@ -392,10 +389,8 @@ df1.to_csv("Job_accept_Final_analysis.csv",index=False)
 
 # --- Create database ---
 
-engine = create_engine('mysql+pymysql://root:Mwin%402028@127.0.0.1:3306/project')
 df2 = pd.read_csv("Job_accept_Final_analysis.csv")
-df2.to_sql("job", engine, if_exists='replace', index=False)
-print(f"Uploaded {len(df2)} rows to databse project")
+print(f"Loaded {len(df2)} cleaned rows for model training")
 
 #  ============================================================
 ## Machine Learning Modeling
@@ -475,25 +470,16 @@ print(summary.to_string(index=False))
 # pickle.dump(encoders, open("/workspace/encoders.pkl", "wb"))
 print(f"\nBest: {best_name} (ROC-AUC = {best_metric:.4f})")
 
-
-
-# Create models directory
+# Persist real comparison metrics and the selected fitted estimator.
+from pathlib import Path
 MODEL_DIR = Path("models")
 MODEL_DIR.mkdir(parents=True, exist_ok=True)
-
-# Save the best model and its fitted encoders
-model_bundle = {
+summary.rename(columns={"j": "Model"}).to_csv(MODEL_DIR / "model_comparison.csv", index=False)
+joblib.dump({
     "model": best_model,
     "model_name": best_name,
-    "roc_auc": best_metric,
+    "roc_auc": float(best_metric),
     "encoders": encoders,
-    "feature_columns": X.columns.tolist()
-}
-
-MODEL_PATH = MODEL_DIR / "best_placement_model.joblib"
-
-joblib.dump(model_bundle, MODEL_PATH)
-
-print(f"Best model saved: {MODEL_PATH.resolve()}")
-print(f"Selected model: {best_name}")
-print(f"ROC-AUC: {best_metric:.4f}")
+    "feature_columns": X.columns.tolist(),
+}, MODEL_DIR / "best_placement_model.joblib")
+print(f"Artifacts saved in: {MODEL_DIR.resolve()}")
