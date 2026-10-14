@@ -443,7 +443,7 @@ with tab_prediction:
 
         try:
             # Use the same model-building logic as Employee_Placement_Master.py
-            model_df = pd.read_csv("Job_accept_Final_analysis.csv")
+            model_df = pd.read_csv(DATA_PATH)
 
             drop_columns = [
                 "placement_rate",
