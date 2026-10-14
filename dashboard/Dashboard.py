@@ -502,238 +502,238 @@ with tab_prediction:
         st.error(f"Prediction model could not be loaded: {error}")
         st.stop()
 
-            # Split data
-            X_train, X_test, y_train, y_test = train_test_split(
-                X_model,
-                y_model,
-                test_size=0.2,
-                random_state=42,
-                stratify=y_model,
-            )
-
-            # ML models
-            models = {
-                "lr": LogisticRegression(max_iter=2000, random_state=42),
-                "dt": DecisionTreeClassifier(random_state=42),
-                "rf": RandomForestClassifier(random_state=42),
-                "xgb": XGBClassifier(random_state=42),
-                "knn": KNeighborsClassifier(n_neighbors=5),
-                "nb": GaussianNB(),
-            }
-
-            # Select model using ROC-AUC
-            best_metric = -1
-            best_model = None
-            best_name = ""
-
-            for model_name, model in models.items():
-                model.fit(X_train, y_train)
-
-                y_proba = model.predict_proba(X_test)[:, 1]
-                auc = roc_auc_score(y_test, y_proba)
-
-                if auc > best_metric:
-                    best_metric = auc
-                    best_model = model
-                    best_name = model_name
-
-        except Exception as error:
-            st.error(f"Prediction model could not be loaded: {error}")
-            st.stop()
-
-        st.info(
-            f"Current Prediction Model: {best_name} | "
-            f"ROC-AUC: {best_metric:.4f}"
+        # Split data
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_model,
+            y_model,
+            test_size=0.2,
+            random_state=42,
+            stratify=y_model,
         )
 
-        with st.form("candidate_prediction_form"):
-            st.markdown("### 👤 Personal & Academic Details")
-            c1, c2, c3 = st.columns(3)
+        # ML models
+        models = {
+            "lr": LogisticRegression(max_iter=2000, random_state=42),
+            "dt": DecisionTreeClassifier(random_state=42),
+            "rf": RandomForestClassifier(random_state=42),
+            "xgb": XGBClassifier(random_state=42),
+            "knn": KNeighborsClassifier(n_neighbors=5),
+            "nb": GaussianNB(),
+        }
 
-            with c1:
-                age_years = st.number_input("Age", min_value=18, max_value=60, value=24)
-                ssc_percentage = st.number_input(
-                    "SSC Percentage", min_value=0.0, max_value=100.0, value=82.0
-                )
+        # Select model using ROC-AUC
+        best_metric = -1
+        best_model = None
+        best_name = ""
 
-            with c2:
-                gender = st.selectbox("Gender", list(encoders["gender"].classes_))
-                hsc_percentage = st.number_input(
-                    "HSC Percentage", min_value=0.0, max_value=100.0, value=79.0
-                )
+        for model_name, model in models.items():
+            model.fit(X_train, y_train)
 
-            with c3:
-                degree_percentage = st.number_input(
-                    "Degree Percentage", min_value=0.0, max_value=100.0, value=81.5
-                )
-                degree_specialization = st.selectbox(
-                    "Degree Specialization",
-                    list(encoders["degree_specialization"].classes_),
-                )
+            y_proba = model.predict_proba(X_test)[:, 1]
+            auc = roc_auc_score(y_test, y_proba)
 
-            st.markdown("---")
-            st.markdown("### 📝 Assessment & Skills")
-            c1, c2, c3 = st.columns(3)
+            if auc > best_metric:
+                best_metric = auc
+                best_model = model
+                best_name = model_name
 
-            with c1:
-                technical_score = st.number_input(
-                    "Technical Score", min_value=0, max_value=100, value=85
-                )
-                skills_match_percentage = st.number_input(
-                    "Skills Match Percentage",
-                    min_value=0.0,
-                    max_value=100.0,
-                    value=88.0,
-                )
+    except Exception as error:
+        st.error(f"Prediction model could not be loaded: {error}")
+        st.stop()
 
-            with c2:
-                aptitude_score = st.number_input(
-                    "Aptitude Score", min_value=0, max_value=100, value=78
-                )
-                certifications_count = st.number_input(
-                    "Certifications Count", min_value=0, value=3
-                )
+    st.info(
+        f"Current Prediction Model: {best_name} | "
+        f"ROC-AUC: {best_metric:.4f}"
+    )
 
-            with c3:
-                communication_score = st.number_input(
-                    "Communication Score", min_value=0, max_value=100, value=82
-                )
-                internship_experience = st.selectbox(
-                    "Internship Experience",
-                    list(encoders["internship_experience"].classes_),
-                )
+    with st.form("candidate_prediction_form"):
+        st.markdown("### 👤 Personal & Academic Details")
+        c1, c2, c3 = st.columns(3)
 
-            st.markdown("---")
-            st.markdown("### 💼 Experience")
-            c1, c2, c3 = st.columns(3)
-
-            with c1:
-                years_of_experience = st.number_input(
-                    "Years of Experience", min_value=0.0, value=1.5
-                )
-                previous_ctc_lpa = st.number_input(
-                    "Previous CTC (LPA)", min_value=0.0, value=3.5
-                )
-
-            with c2:
-                career_switch_willingness = st.selectbox(
-                    "Career Switch Willingness",
-                    list(encoders["career_switch_willingness"].classes_),
-                )
-                expected_ctc_lpa = st.number_input(
-                    "Expected CTC (LPA)", min_value=0.0, value=5.5
-                )
-
-            with c3:
-                relevant_experience = st.selectbox(
-                    "Relevant Experience",
-                    list(encoders["relevant_experience"].classes_),
-                )
-                employment_gap_months = st.number_input(
-                    "Employment Gap (Months)", min_value=0, value=0
-                )
-
-            st.markdown("---")
-            st.markdown("### 🏢 Job & Company Details")
-            c1, c2, c3 = st.columns(3)
-
-            with c1:
-                company_tier = st.selectbox(
-                    "Company Tier", list(encoders["company_tier"].classes_)
-                )
-                bond_requirement = st.selectbox(
-                    "Bond Requirement", list(encoders["bond_requirement"].classes_)
-                )
-                layoff_history = st.selectbox(
-                    "Layoff History", list(encoders["layoff_history"].classes_)
-                )
-
-            with c2:
-                job_role_match = st.selectbox(
-                    "Job Role Match", list(encoders["job_role_match"].classes_)
-                )
-                notice_period_days = st.number_input(
-                    "Notice Period (Days)", min_value=0, value=30
-                )
-                relocation_willingness = st.selectbox(
-                    "Relocation Willingness",
-                    list(encoders["relocation_willingness"].classes_),
-                )
-
-            with c3:
-                competition_level = st.selectbox(
-                    "Competition Level", list(encoders["competition_level"].classes_)
-                )
-
-            st.markdown("---")
-            predict_button = st.form_submit_button(
-                "🎯 Predict Placement", use_container_width=True
+        with c1:
+            age_years = st.number_input("Age", min_value=18, max_value=60, value=24)
+            ssc_percentage = st.number_input(
+                "SSC Percentage", min_value=0.0, max_value=100.0, value=82.0
             )
 
-        if predict_button:
-            candidate_data = {
-                "age_years": age_years,
-                "gender": gender,
-                "ssc_percentage": ssc_percentage,
-                "hsc_percentage": hsc_percentage,
-                "degree_percentage": degree_percentage,
-                "degree_specialization": degree_specialization,
-                "technical_score": technical_score,
-                "aptitude_score": aptitude_score,
-                "communication_score": communication_score,
-                "skills_match_percentage": skills_match_percentage,
-                "certifications_count": certifications_count,
-                "internship_experience": internship_experience,
-                "years_of_experience": years_of_experience,
-                "career_switch_willingness": career_switch_willingness,
-                "relevant_experience": relevant_experience,
-                "previous_ctc_lpa": previous_ctc_lpa,
-                "expected_ctc_lpa": expected_ctc_lpa,
-                "company_tier": company_tier,
-                "job_role_match": job_role_match,
-                "competition_level": competition_level,
-                "bond_requirement": bond_requirement,
-                "notice_period_days": notice_period_days,
-                "layoff_history": layoff_history,
-                "employment_gap_months": employment_gap_months,
-                "relocation_willingness": relocation_willingness,
-            }
+        with c2:
+            gender = st.selectbox("Gender", list(encoders["gender"].classes_))
+            hsc_percentage = st.number_input(
+                "HSC Percentage", min_value=0.0, max_value=100.0, value=79.0
+            )
 
-            try:
-                candidate_df = pd.DataFrame([candidate_data])
+        with c3:
+            degree_percentage = st.number_input(
+                "Degree Percentage", min_value=0.0, max_value=100.0, value=81.5
+            )
+            degree_specialization = st.selectbox(
+                "Degree Specialization",
+                list(encoders["degree_specialization"].classes_),
+            )
 
-                # Encode categorical values using the same encoders fitted on training data
-                for col, encoder in encoders.items():
-                    if col in candidate_df.columns:
-                        candidate_df[col] = encoder.transform(
-                            candidate_df[col].astype(str).str.strip()
-                        )
+        st.markdown("---")
+        st.markdown("### 📝 Assessment & Skills")
+        c1, c2, c3 = st.columns(3)
 
-                # Keep exactly the same feature order used during model training
-                candidate_df = candidate_df[feature_columns]
+        with c1:
+            technical_score = st.number_input(
+                "Technical Score", min_value=0, max_value=100, value=85
+            )
+            skills_match_percentage = st.number_input(
+                "Skills Match Percentage",
+                min_value=0.0,
+                max_value=100.0,
+                value=88.0,
+            )
 
-                prediction = int(best_model.predict(candidate_df)[0])
-                probability = float(best_model.predict_proba(candidate_df)[0][1] * 100)
+        with c2:
+            aptitude_score = st.number_input(
+                "Aptitude Score", min_value=0, max_value=100, value=78
+            )
+            certifications_count = st.number_input(
+                "Certifications Count", min_value=0, value=3
+            )
 
-                st.markdown("## 📊 Prediction Result")
-                r1, r2 = st.columns(2)
+        with c3:
+            communication_score = st.number_input(
+                "Communication Score", min_value=0, max_value=100, value=82
+            )
+            internship_experience = st.selectbox(
+                "Internship Experience",
+                list(encoders["internship_experience"].classes_),
+            )
 
-                with r1:
-                    if prediction == 1:
-                        st.success("✅ Predicted Outcome: PLACED")
-                    else:
-                        st.error("❌ Predicted Outcome: NOT PLACED")
+        st.markdown("---")
+        st.markdown("### 💼 Experience")
+        c1, c2, c3 = st.columns(3)
 
-                with r2:
-                    st.metric("Placement Probability", f"{probability:.2f}%")
+        with c1:
+            years_of_experience = st.number_input(
+                "Years of Experience", min_value=0.0, value=1.5
+            )
+            previous_ctc_lpa = st.number_input(
+                "Previous CTC (LPA)", min_value=0.0, value=3.5
+            )
 
-                st.progress(min(max(float(probability) / 100, 0.0), 1.0))
+        with c2:
+            career_switch_willingness = st.selectbox(
+                "Career Switch Willingness",
+                list(encoders["career_switch_willingness"].classes_),
+            )
+            expected_ctc_lpa = st.number_input(
+                "Expected CTC (LPA)", min_value=0.0, value=5.5
+            )
 
-                if probability >= 70:
-                    st.success("The model indicates a high probability of placement.")
-                elif probability >= 40:
-                    st.warning("The model indicates a moderate probability of placement.")
+        with c3:
+            relevant_experience = st.selectbox(
+                "Relevant Experience",
+                list(encoders["relevant_experience"].classes_),
+            )
+            employment_gap_months = st.number_input(
+                "Employment Gap (Months)", min_value=0, value=0
+            )
+
+        st.markdown("---")
+        st.markdown("### 🏢 Job & Company Details")
+        c1, c2, c3 = st.columns(3)
+
+        with c1:
+            company_tier = st.selectbox(
+                "Company Tier", list(encoders["company_tier"].classes_)
+            )
+            bond_requirement = st.selectbox(
+                "Bond Requirement", list(encoders["bond_requirement"].classes_)
+            )
+            layoff_history = st.selectbox(
+                "Layoff History", list(encoders["layoff_history"].classes_)
+            )
+
+        with c2:
+            job_role_match = st.selectbox(
+                "Job Role Match", list(encoders["job_role_match"].classes_)
+            )
+            notice_period_days = st.number_input(
+                "Notice Period (Days)", min_value=0, value=30
+            )
+            relocation_willingness = st.selectbox(
+                "Relocation Willingness",
+                list(encoders["relocation_willingness"].classes_),
+            )
+
+        with c3:
+            competition_level = st.selectbox(
+                "Competition Level", list(encoders["competition_level"].classes_)
+            )
+
+        st.markdown("---")
+        predict_button = st.form_submit_button(
+            "🎯 Predict Placement", use_container_width=True
+        )
+
+    if predict_button:
+        candidate_data = {
+            "age_years": age_years,
+            "gender": gender,
+            "ssc_percentage": ssc_percentage,
+            "hsc_percentage": hsc_percentage,
+            "degree_percentage": degree_percentage,
+            "degree_specialization": degree_specialization,
+            "technical_score": technical_score,
+            "aptitude_score": aptitude_score,
+            "communication_score": communication_score,
+            "skills_match_percentage": skills_match_percentage,
+            "certifications_count": certifications_count,
+            "internship_experience": internship_experience,
+            "years_of_experience": years_of_experience,
+            "career_switch_willingness": career_switch_willingness,
+            "relevant_experience": relevant_experience,
+            "previous_ctc_lpa": previous_ctc_lpa,
+            "expected_ctc_lpa": expected_ctc_lpa,
+            "company_tier": company_tier,
+            "job_role_match": job_role_match,
+            "competition_level": competition_level,
+            "bond_requirement": bond_requirement,
+            "notice_period_days": notice_period_days,
+            "layoff_history": layoff_history,
+            "employment_gap_months": employment_gap_months,
+            "relocation_willingness": relocation_willingness,
+        }
+
+        try:
+            candidate_df = pd.DataFrame([candidate_data])
+
+            # Encode categorical values using the same encoders fitted on training data
+            for col, encoder in encoders.items():
+                if col in candidate_df.columns:
+                    candidate_df[col] = encoder.transform(
+                        candidate_df[col].astype(str).str.strip()
+                    )
+
+            # Keep exactly the same feature order used during model training
+            candidate_df = candidate_df[feature_columns]
+
+            prediction = int(best_model.predict(candidate_df)[0])
+            probability = float(best_model.predict_proba(candidate_df)[0][1] * 100)
+
+            st.markdown("## 📊 Prediction Result")
+            r1, r2 = st.columns(2)
+
+            with r1:
+                if prediction == 1:
+                    st.success("✅ Predicted Outcome: PLACED")
                 else:
-                    st.error("The model indicates a relatively low probability of placement.")
-            except Exception as error:
-                st.error(f"Prediction could not be completed: {error}")
+                    st.error("❌ Predicted Outcome: NOT PLACED")
+
+            with r2:
+                st.metric("Placement Probability", f"{probability:.2f}%")
+
+            st.progress(min(max(float(probability) / 100, 0.0), 1.0))
+
+            if probability >= 70:
+                st.success("The model indicates a high probability of placement.")
+            elif probability >= 40:
+                st.warning("The model indicates a moderate probability of placement.")
+            else:
+                st.error("The model indicates a relatively low probability of placement.")
+        except Exception as error:
+            st.error(f"Prediction could not be completed: {error}")
