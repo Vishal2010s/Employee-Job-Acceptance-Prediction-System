@@ -442,8 +442,10 @@ with tab_prediction:
         )
 
         try:
-            # Use the same model-building logic as Employee_Placement_Master.py
-            model_df = pd.read_csv(DATA_PATH)
+            model_data = pd.read_csv("Job_accept_Final_analysis.csv")
+            # Train or load the prediction model
+        except Exception as e:
+            st.error(f"Prediction model could not be loaded: {e}")
 
             drop_columns = [
                 "placement_rate",
