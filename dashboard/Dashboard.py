@@ -433,50 +433,74 @@ with tab_analysis:
 
         st.dataframe(band_agg, use_container_width=True, hide_index=True)
 
+
 with tab_prediction:
-        st.subheader("🎯 New Candidate Placement Prediction")
-        st.write(
-            "Enter the candidate details below. "
-            "The best-performing machine learning model will estimate "
-            "whether the candidate is likely to be placed."
-        )
+    st.subheader("🎯 New Candidate Placement Prediction")
+    st.write(
+        "Enter the candidate details below. "
+        "The best-performing machine learning model will estimate "
+        "whether the candidate is likely to be placed."
+    )
 
-        
-        try:
-            # Load the dataset
-            model_df = pd.read_csv(DATA_PATH)
+    try:
+        # Load the dataset
+        model_df = pd.read_csv(DATA_PATH)
 
-            # Exclude derived features that should not be used
-            drop_columns = [
-                "placement_rate",
-                "avg_interview_score",
-                "placement_prob_score",
-                "skills_match_level",
-                "experience_category",
-                "academic_band",
-                "interview_performance",
-            ]
+        # Exclude derived features
+        drop_columns = [
+            "placement_rate",
+            "avg_interview_score",
+            "placement_prob_score",
+            "skills_match_level",
+            "experience_category",
+            "academic_band",
+            "interview_performance",
+        ]
 
-            # Prepare target and features
-            y_model = (model_df["status"] == "Placed").astype(int)
+        # Prepare target and features
+        y_model = (
+            model_df["status"].astype(str).str.strip() == "Placed"
+        ).astype(int)
 
-            X_model = model_df.drop(
-                columns=["status"] + drop_columns,
-                errors="ignore"
-            ).copy()
+        X_model = model_df.drop(
+            columns=["status"] + drop_columns,
+            errors="ignore"
+        ).copy()
 
-            # Encode categorical features
-            encoders = {}
+        # Encode categorical columns automatically
+        encoders = {}
 
-            for col in X_model.columns:
-                if X_model[col].dtype in ["object", "category"]:
-                    le = LabelEncoder()
-                    X_model[col] = le.fit_transform(
-                        X_model[col].astype(str).str.strip()
-                    )
-                    encoders[col] = le
+        categorical_columns = X_model.select_dtypes(
+            include=["object", "string", "category"]
+        ).columns
 
-            feature_columns = X_model.columns.tolist()
+        for col in categorical_columns:
+            le = LabelEncoder()
+
+            X_model[col] = le.fit_transform(
+                X_model[col].astype(str).str.strip()
+            )
+
+            encoders[col] = le
+
+        # Check that all categorical columns are encoded
+        remaining_text = X_model.select_dtypes(
+            include=["object", "string", "category"]
+        ).columns.tolist()
+
+        if remaining_text:
+            raise ValueError(
+                f"Unencoded categorical columns: {remaining_text}"
+            )
+
+        # Store feature names
+        feature_columns = X_model.columns.tolist()
+
+        # Continue with your existing model training code here
+
+    except Exception as error:
+        st.error(f"Prediction model could not be loaded: {error}")
+        st.stop()
 
             # Split data
             X_train, X_test, y_train, y_test = train_test_split(
