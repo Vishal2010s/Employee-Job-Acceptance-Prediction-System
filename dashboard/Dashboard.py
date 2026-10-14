@@ -147,8 +147,8 @@ st.markdown("""
     .metric-card-2 { background: #16665D; }
     .metric-card-3 { background: #1E3A5F; }
     .metric-card-4 { background: #813D42; }
-    .metric-card-5 { background: #1E3A5F; }
-    .metric-card-6 { background: #16665D; }
+    .metric-card-5 { background: #16665D; }
+    .metric-card-6 { background: #1E3A5F; }
     .metric-card-7 { background: #813D42; }
     html, body, [data-testid="stAppViewContainer"] {font-size: 16px;}
     .stTabs [aria-selected="true"] {
