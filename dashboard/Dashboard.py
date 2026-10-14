@@ -442,7 +442,7 @@ with tab_prediction:
         )
 
         try:
-            model_data = pd.read_csv("Job_accept_Final_analysis.csv")
+            model_data = pd.read_csv(DATA_PATH)
             # Train or load the prediction model
         except Exception as e:
             st.error(f"Prediction model could not be loaded: {e}")
@@ -457,8 +457,8 @@ with tab_prediction:
                 "interview_performance",
             ]
 
-            y_model = (model_df["status"] == "Placed").astype(int)
-            X_model = model_df.drop(columns=["status"] + drop_columns)
+            y_model = (model_data["status"] == "Placed").astype(int)
+            X_model = model_data.drop(columns=["status"] + drop_columns)
 
             encoders = {}
             for col in X_model.columns:
