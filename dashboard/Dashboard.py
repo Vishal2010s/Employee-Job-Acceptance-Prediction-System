@@ -1,20 +1,9 @@
-from zipfile import Path
-
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from sklearn.preprocessing import LabelEncoder
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
-from xgboost import XGBClassifier
 from pathlib import Path
-
+import joblib
 
 
 # ──────────────────────────────────────
@@ -28,6 +17,7 @@ st.set_page_config(page_title="Placement Dashboard", page_icon="🎯", layout="w
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "Job_accept_Final_analysis.csv"
+MODEL_PATH = BASE_DIR / "models" / "best_placement_model.joblib"
 df = pd.read_csv(DATA_PATH)
 
 # ──────────────────────────────────────
@@ -444,66 +434,24 @@ with tab_prediction:
             "whether the candidate is likely to be placed."
         )
 
+        
+        @st.cache_resource
+        def load_prediction_model():
+            return joblib.load(MODEL_PATH)
+
         try:
-            # Use the same model-building logic as Employee_Placement_Master.py
-            model_df = pd.read_csv(DATA_PATH)
+            model_bundle = load_prediction_model()
 
-            drop_columns = [
-                "placement_rate",
-                "avg_interview_score",
-                "placement_prob_score",
-                "skills_match_level",
-                "experience_category",
-                "academic_band",
-                "interview_performance",
-            ]
-
-            y_model = (model_df["status"] == "Placed").astype(int)
-            X_model = model_df.drop(columns=["status"] + drop_columns)
-
-            encoders = {}
-            for col in X_model.columns:
-                if X_model[col].dtype in ["object", "category","string"]:
-                    le = LabelEncoder()
-                    X_model[col] = le.fit_transform(X_model[col])
-                    encoders[col] = le
-
-            feature_columns = X_model.columns.tolist()
-
-            X_train, X_test, y_train, y_test = train_test_split(
-                X_model,
-                y_model,
-                test_size=0.2,
-                random_state=42,
-                stratify=y_model,
-            )
-
-            models = {
-                "lr": LogisticRegression(max_iter=2000, random_state=42),
-                "dt": DecisionTreeClassifier(random_state=42),
-                "rf": RandomForestClassifier(random_state=42),
-                "xgb": XGBClassifier(random_state=42),
-                "knn": KNeighborsClassifier(n_neighbors=5),
-                "nb": GaussianNB(),
-            }
-
-            best_metric = -1
-            best_model = None
-            best_name = ""
-
-            for model_name, model in models.items():
-                model.fit(X_train, y_train)
-                y_proba = model.predict_proba(X_test)[:, 1]
-                auc = roc_auc_score(y_test, y_proba)
-
-                if auc > best_metric:
-                    best_metric = auc
-                    best_model = model
-                    best_name = model_name
+            best_model = model_bundle["model"]
+            best_name = model_bundle["model_name"]
+            best_metric = model_bundle["roc_auc"]
+            encoders = model_bundle["encoders"]
+            feature_columns = model_bundle["feature_columns"]
 
         except Exception as error:
             st.error(f"Prediction model could not be loaded: {error}")
             st.stop()
+
 
         st.info(
             f"Current Prediction Model: {best_name} | "
