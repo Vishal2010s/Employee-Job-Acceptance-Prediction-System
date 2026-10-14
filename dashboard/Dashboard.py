@@ -682,7 +682,7 @@ with tab_prediction:
                 for col, encoder in encoders.items():
                     if col in candidate_df.columns:
                         candidate_df[col] = encoder.transform(
-                            candidate_df[col].astype(str).str.title().str.strip()
+                            candidate_df[col].astype(str).str.strip()
                         )
 
                 # Keep exactly the same feature order used during model training
