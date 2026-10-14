@@ -20,7 +20,12 @@ st.set_page_config(page_title="Placement Dashboard", page_icon="🎯", layout="w
 # ──────────────────────────────────────
 #  LOAD DATA
 # ──────────────────────────────────────
-df = pd.read_csv("Job_accept_Final_analysis.csv")
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_PATH = BASE_DIR / "data" / "Job_accept_Final_analysis.csv"
+
+df = pd.read_csv(DATA_PATH)
 
 # ──────────────────────────────────────
 #  HEADER
