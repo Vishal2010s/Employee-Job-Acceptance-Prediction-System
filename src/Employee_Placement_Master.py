@@ -5,8 +5,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 import numpy as np
-from data_profiling import ProfileReport
-import pdfkit
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
@@ -19,6 +17,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBClassifier
 from sklearn.naive_bayes import GaussianNB
 import joblib
+from pathlib import Path
+
 print("\N{white heavy check mark}","All libraries loaded")
 
 print("Processing started")
@@ -474,3 +474,26 @@ print(summary.to_string(index=False))
 # pickle.dump(best_model, open("/workspace/best_model.pkl", "wb"))
 # pickle.dump(encoders, open("/workspace/encoders.pkl", "wb"))
 print(f"\nBest: {best_name} (ROC-AUC = {best_metric:.4f})")
+
+
+
+# Create models directory
+MODEL_DIR = Path("models")
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+# Save the best model and its fitted encoders
+model_bundle = {
+    "model": best_model,
+    "model_name": best_name,
+    "roc_auc": best_metric,
+    "encoders": encoders,
+    "feature_columns": X.columns.tolist()
+}
+
+MODEL_PATH = MODEL_DIR / "best_placement_model.joblib"
+
+joblib.dump(model_bundle, MODEL_PATH)
+
+print(f"Best model saved: {MODEL_PATH.resolve()}")
+print(f"Selected model: {best_name}")
+print(f"ROC-AUC: {best_metric:.4f}")
