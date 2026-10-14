@@ -441,12 +441,12 @@ with tab_prediction:
             "whether the candidate is likely to be placed."
         )
 
+        
         try:
-            model_data = pd.read_csv(DATA_PATH)
-            # Train or load the prediction model
-        except Exception as e:
-            st.error(f"Prediction model could not be loaded: {e}")
+            # Load the dataset
+            model_df = pd.read_csv(DATA_PATH)
 
+            # Exclude derived features that should not be used
             drop_columns = [
                 "placement_rate",
                 "avg_interview_score",
@@ -457,18 +457,28 @@ with tab_prediction:
                 "interview_performance",
             ]
 
-            y_model = (model_data["status"] == "Placed").astype(int)
-            X_model = model_data.drop(columns=["status"] + drop_columns)
+            # Prepare target and features
+            y_model = (model_df["status"] == "Placed").astype(int)
 
+            X_model = model_df.drop(
+                columns=["status"] + drop_columns,
+                errors="ignore"
+            ).copy()
+
+            # Encode categorical features
             encoders = {}
+
             for col in X_model.columns:
                 if X_model[col].dtype in ["object", "category"]:
                     le = LabelEncoder()
-                    X_model[col] = le.fit_transform(X_model[col])
+                    X_model[col] = le.fit_transform(
+                        X_model[col].astype(str).str.strip()
+                    )
                     encoders[col] = le
 
             feature_columns = X_model.columns.tolist()
 
+            # Split data
             X_train, X_test, y_train, y_test = train_test_split(
                 X_model,
                 y_model,
@@ -477,6 +487,7 @@ with tab_prediction:
                 stratify=y_model,
             )
 
+            # ML models
             models = {
                 "lr": LogisticRegression(max_iter=2000, random_state=42),
                 "dt": DecisionTreeClassifier(random_state=42),
@@ -486,12 +497,14 @@ with tab_prediction:
                 "nb": GaussianNB(),
             }
 
+            # Select model using ROC-AUC
             best_metric = -1
             best_model = None
             best_name = ""
 
             for model_name, model in models.items():
                 model.fit(X_train, y_train)
+
                 y_proba = model.predict_proba(X_test)[:, 1]
                 auc = roc_auc_score(y_test, y_proba)
 
@@ -669,7 +682,7 @@ with tab_prediction:
                 for col, encoder in encoders.items():
                     if col in candidate_df.columns:
                         candidate_df[col] = encoder.transform(
-                            candidate_df[col].astype(str).str.title().str.strip()
+                            candidate_df[col].astype(str).str.strip()
                         )
 
                 # Keep exactly the same feature order used during model training
