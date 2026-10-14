@@ -1,9 +1,12 @@
+
 import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
 from pathlib import Path
 import joblib
+import plotly.graph_objects as go
+
 
 
 # ──────────────────────────────────────
@@ -18,7 +21,18 @@ st.set_page_config(page_title="Placement Dashboard", page_icon="🎯", layout="w
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_PATH = BASE_DIR / "data" / "Job_accept_Final_analysis.csv"
 MODEL_PATH = BASE_DIR / "models" / "best_placement_model.joblib"
-df = pd.read_csv(DATA_PATH)
+COMPARISON_PATH = BASE_DIR / "models" / "model_comparison.csv"
+GITHUB_URL = "https://github.com/Vishal2010s/Employee-Job-Acceptance-Prediction-System"
+
+@st.cache_resource
+def load_prediction_bundle():
+    return joblib.load(MODEL_PATH)
+
+@st.cache_data
+def load_dashboard_data():
+    return pd.read_csv(DATA_PATH)
+
+df = load_dashboard_data()
 
 # ──────────────────────────────────────
 #  HEADER
@@ -101,7 +115,10 @@ high_risk_pct = round(len(high_risk) / total * 100, 2) if total else 0
 # ──────────────────────────────────────
 #  TABS
 # ──────────────────────────────────────
-tab_kpi, tab_analysis, tab_prediction = st.tabs(["📊 KPIs", "🔍 Analysis", "🎯 Predict Candidate"])
+tab_kpi, tab_analysis, tab_model, tab_prediction, tab_method = st.tabs([
+    "📊 KPIs", "🔍 Analysis", "🧪 Model Comparison",
+    "🎯 Predict Candidate", "📘 Project & Methodology"
+])
 
 
 ## ══════════════════════════════════════
@@ -118,21 +135,22 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     .kpi-value {
-        font-size: 28px;
+        font-size: 30px;
         font-weight: bold;
         margin: 5px 0;
     }
     .kpi-label {
-        font-size: 14px;
+        font-size: 16px;
         opacity: 0.9;
     }
-    .metric-card-1 { background: linear-gradient(135deg, #FF6B35 0%, #F7931E 100%); }
-    .metric-card-2 { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-    .metric-card-3 { background: linear-gradient(135deg, #4A00E0 0%, #8E2DE2 100%); }
-    .metric-card-4 { background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%); }
-    .metric-card-5 { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); }
-    .metric-card-6 { background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%); }
-    .metric-card-7 { background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%); }
+    .metric-card-1 { background: #1E3A5F; }
+    .metric-card-2 { background: #16665D; }
+    .metric-card-3 { background: #1E3A5F; }
+    .metric-card-4 { background: #813D42; }
+    .metric-card-5 { background: #1E3A5F; }
+    .metric-card-6 { background: #16665D; }
+    .metric-card-7 { background: #813D42; }
+    html, body, [data-testid="stAppViewContainer"] {font-size: 16px;}
     .stTabs [aria-selected="true"] {
         background-color: #FF6B35 !important;
         color: black !important;
@@ -426,6 +444,27 @@ with tab_analysis:
 
         st.dataframe(band_agg, use_container_width=True, hide_index=True)
 
+with tab_model:
+    st.subheader("🧪 Six-Model Performance Comparison")
+    st.caption("These metrics come from the master training run; the dashboard never retrains models. Scores reflect the evaluation scheme used by that script.")
+    if COMPARISON_PATH.exists():
+        measured = pd.read_csv(COMPARISON_PATH)
+        if "j" in measured.columns:
+            measured = measured.rename(columns={"j": "Model"})
+        if "ROC-AUC" in measured.columns:
+            measured = measured.sort_values("ROC-AUC", ascending=False)
+        st.dataframe(measured, hide_index=True, use_container_width=True)
+        if {"Model", "ROC-AUC"}.issubset(measured.columns):
+            chart = px.bar(measured, x="Model", y="ROC-AUC", text_auto=".3f",
+                           title="Measured ROC-AUC by algorithm", color="ROC-AUC",
+                           color_continuous_scale="Blues")
+            chart.update_layout(coloraxis_showscale=False, yaxis_title="ROC-AUC (0–1)")
+            st.plotly_chart(chart, use_container_width=True)
+    else:
+        st.warning("Comparison metrics are not yet deployed. Run the updated master script, then commit models/model_comparison.csv.")
+    st.info("The original training script ranks models using test-set ROC-AUC. For a stronger unbiased assessment, select via cross-validation or a validation set, then evaluate once on an untouched test set.")
+    st.markdown("[View training code on GitHub](" + GITHUB_URL + "/tree/main/src)")
+
 with tab_prediction:
         st.subheader("🎯 New Candidate Placement Prediction")
         st.write(
@@ -434,25 +473,18 @@ with tab_prediction:
             "whether the candidate is likely to be placed."
         )
 
-        
-        @st.cache_resource
-        def load_prediction_model():
-            return joblib.load(MODEL_PATH)
-
         try:
-            model_bundle = load_prediction_model()
-
+            model_bundle = load_prediction_bundle()
             best_model = model_bundle["model"]
             best_name = model_bundle["model_name"]
-            best_metric = model_bundle["roc_auc"]
+            best_metric = float(model_bundle["roc_auc"])
             encoders = model_bundle["encoders"]
             feature_columns = model_bundle["feature_columns"]
-
         except Exception as error:
-            st.error(f"Prediction model could not be loaded: {error}")
+            st.error(f"Saved model could not be loaded: {error}")
+            st.info("Train the master script once and commit models/best_placement_model.joblib.")
             st.stop()
-
-
+        
         st.info(
             f"Current Prediction Model: {best_name} | "
             f"ROC-AUC: {best_metric:.4f}"
@@ -641,6 +673,39 @@ with tab_prediction:
 
                 st.progress(min(max(float(probability) / 100, 0.0), 1.0))
 
+                st.markdown("### 🔎 What influenced this prediction?")
+                st.caption("SHAP describes contributions to this model's output, not causal factors or reasons to make a hiring decision. Categorical features use numeric codes fitted during training.")
+                if best_name.lower() == "xgb":
+                    try:
+                        import shap
+                        explainer = shap.TreeExplainer(best_model)
+                        explanation = explainer(candidate_df)
+                        values = np.asarray(explanation.values)
+                        if values.ndim == 3:
+                            values = values[:, :, 1]
+                        contributions = pd.DataFrame({
+                            "Feature": feature_columns,
+                            "SHAP contribution": values[0]
+                        })
+                        contributions["Absolute impact"] = contributions["SHAP contribution"].abs()
+                        contributors = contributions.nlargest(10, "Absolute impact").sort_values("SHAP contribution")
+                        chart = px.bar(
+                            contributors, x="SHAP contribution", y="Feature",
+                            orientation="h", color="SHAP contribution",
+                            color_continuous_scale="RdBu", color_continuous_midpoint=0,
+                            title="Top 10 feature contributions (model output scale)"
+                        )
+                        chart.update_layout(height=460, coloraxis_showscale=False)
+                        st.plotly_chart(chart, use_container_width=True)
+                        st.caption("Positive values move the model output toward the Placed class; negative values move it away. Values are not percentage-point changes in probability.")
+                    except ImportError:
+                        st.info("Install `shap` in requirements.txt to enable explanations.")
+                    except Exception as explain_error:
+                        st.warning(f"SHAP explanation unavailable: {explain_error}")
+                else:
+                    st.info("Individual SHAP explanations are currently supported for the saved XGBoost model.")
+
+
                 if probability >= 70:
                     st.success("The model indicates a high probability of placement.")
                 elif probability >= 40:
@@ -649,3 +714,15 @@ with tab_prediction:
                     st.error("The model indicates a relatively low probability of placement.")
             except Exception as error:
                 st.error(f"Prediction could not be completed: {error}")
+
+
+with tab_method:
+    st.subheader("📘 Project Overview & Methodology")
+    st.write("Interactive exploration of candidate placement outcomes and a demonstration machine-learning classifier for estimating placement likelihood from candidate and job attributes.")
+    st.markdown("""**Workflow**: data preparation and categorical normalization → descriptive analysis and feature engineering → model comparison (Logistic Regression, Decision Tree, Random Forest, XGBoost, KNN and Gaussian Naive Bayes) → save the selected model with its fitted encoders → fast candidate inference.""")
+    st.markdown("**Dataset:** See the repository's `data/` folder and README for origin, definitions, scope, and any licensing constraints.")
+    st.markdown("**Model selection:** The supplied master script compares ROC-AUC scores on a held-out split. Because that split is also used to choose the winner, its score should not be presented as an untouched final-test estimate.")
+    st.markdown("**Interpretation:** The output is an estimated model probability, not a guarantee of placement, offer acceptance, or future job performance. SHAP contributions show associations learned by the model rather than causes.")
+    st.markdown("**Limitations:** Potential dataset bias, unverified generalization, artificial ordinal coding of categories, and reliance on the original data distribution. Avoid using protected characteristics or this tool for real employment decisions without appropriate fairness, validity, legal and human-oversight review.")
+    st.link_button("📁 GitHub source, README and dataset", GITHUB_URL)
+    st.link_button("📄 Training methodology (master script)", GITHUB_URL + "/tree/main/src")
